@@ -1,0 +1,38 @@
+version: '3.9'
+
+networks:
+  rat_net:
+
+services:
+  django:
+    build: .
+    command: "gunicorn --bind 0.0.0.0:2222 stocks_products.wsgi"
+    volumes:
+      - static_data:/static
+    networks:
+      - rat_net
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - django
+    ports:
+      - "2222:2222"
+    volumes:
+      - static_data:/static
+      - ./nginx-conf.d:/etc/nginx/conf.d
+  postgres:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - rat_net
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=django
+volumes:
+  postgres_data:
+  static_data:
+    
