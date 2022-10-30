@@ -6,9 +6,11 @@ networks:
 services:
   django:
     build: .
-    command: "gunicorn --bind 0.0.0.0:2222 stocks_products.wsgi"
+    command: "gunicorn --bind 0.0.0.0:8000 stocks_products.wsgi"
     volumes:
       - static_data:/static
+    ports:
+      - "8000:8000"
     networks:
       - rat_net
   nginx:
@@ -16,10 +18,12 @@ services:
     depends_on:
       - django
     ports:
-      - "2222:2222"
+      - "80:80"
     volumes:
       - static_data:/static
       - ./nginx-conf.d:/etc/nginx/conf.d
+    networks:
+      - rat_net
   postgres:
     image: postgres:latest
     volumes:
